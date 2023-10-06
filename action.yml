@@ -1,0 +1,44 @@
+name: Verify Signed Commits in pull requests
+description: Verify that commits are signed in pull requests
+branding:
+  icon: check
+  color: blue
+inputs:
+  token:
+    description: GitHub token to fetch data from GitHub API
+    default: ${{ github.token }}
+  user:
+    description: Which user should have verified commits
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Verify Signed Commits for User
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        CHECK_USER: ${{ inputs.user }}
+        GITHUB_COMMIT_URL: ${{ github.event.pull_request.commits_url }}
+      if: ${{ github.event.pull_request.user.login == inputs.user }}  
+      run: |
+        is_not_signed=""
+        is_not_signed="$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$GITHUB_COMMIT_URL" | jq --arg CHECK_USER "$CHECK_USER" '.[] | select(.commit.verification.verified == false and .author.login == $CHECK_USER) | .html_url')"
+        if [[ -n "$is_not_signed" ]]; then
+          echo "Some commits from $CHECK_USER were not signed."
+          exit 1
+        fi
+
+    - name: Verify Signed Commits for All Users
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        GITHUB_COMMIT_URL: ${{ github.event.pull_request.commits_url }}
+      if: ${{ inputs.user == '' }}  
+      run: |
+        is_not_signed=""
+        is_not_signed="$(curl -s -H "Authorization: token $GITHUB_TOKEN" "$GITHUB_COMMIT_URL" | jq '.[] | select(.commit.verification.verified == false) | .html_url')"
+        if [[ -n "$is_not_signed" ]]; then
+          echo "Some commits were not signed."
+          exit 1
+        fi
