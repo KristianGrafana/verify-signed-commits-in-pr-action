@@ -1,0 +1,14 @@
+name: Verify signed commits in pull requests
+on: pull_request
+
+jobs:
+  build:
+    name: Verify signed commits in pull requests 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Verify signed commits in pull requests 
+        uses: ./
+        with:
+          user: "KristianGrafana"
