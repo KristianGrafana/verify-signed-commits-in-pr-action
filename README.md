@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Verify that all commits made by "octocat" are signed in pull requests 
-        uses: KristianGrafana/verify-signed-commits-in-PR@v1
+        uses: KristianGrafana/verify-signed-commits-in-PR-action@v1
         with:
           user: "octocat"
 ```
@@ -24,7 +24,7 @@ jobs:
 To check all commits, made by any user:
 ```
       - name: Verify that all commits are signed in pull requests 
-        uses: KristianGrafana/verify-signed-commits-in-PR@v1
+        uses: KristianGrafana/verify-signed-commits-in-PR-action@v1
 ```
 
 # Demo
